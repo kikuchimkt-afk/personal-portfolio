@@ -501,3 +501,74 @@ async function importFromExcel(event) {
     // 同じファイルを再選択できるようにリセット
     event.target.value = '';
 }
+
+// =============================================
+// Driveフォルダ一括作成
+// =============================================
+
+async function bulkCreateFolders() {
+    // フォルダ未設定の生徒を事前チェック
+    const noFolder = _allStudents.filter(s => !s.driveFolder || s.driveFolder.trim() === '');
+    if (noFolder.length === 0) {
+        showBulkFolderModal('すべての生徒にDriveフォルダが設定済みです', []);
+        return;
+    }
+
+    if (!confirm(`${noFolder.length}名の生徒にDriveフォルダを作成します。\n\n対象: ${noFolder.map(s => s.name).join('、')}\n\n実行しますか？`)) return;
+
+    const btn = document.getElementById('bulkFolderBtn');
+    const status = document.getElementById('bulkFolderStatus');
+    btn.disabled = true;
+    btn.textContent = '⏳ 作成中...';
+    status.textContent = `${noFolder.length}名分のフォルダを作成しています...`;
+
+    try {
+        const result = await postToAPI({ action: 'bulkCreateFolders' });
+
+        if (result.success) {
+            const created = result.created || [];
+            if (created.length > 0) {
+                showBulkFolderModal(`✅ ${created.length}名のDriveフォルダを作成しました`, created);
+            } else {
+                showBulkFolderModal('すべての生徒にDriveフォルダが設定済みです', []);
+            }
+            // データ再取得
+            clearCache();
+            _allStudents = await fetchAllStudents();
+            renderStudentList();
+            if (_currentStudentId) selectStudent(_currentStudentId);
+        } else {
+            showBulkFolderModal('❌ フォルダ作成に失敗しました: ' + (result.error || ''), []);
+        }
+    } catch (err) {
+        showBulkFolderModal('❌ エラー: ' + err.message, []);
+    }
+
+    btn.disabled = false;
+    btn.textContent = '📁 フォルダがない生徒に一括作成';
+    status.textContent = '';
+}
+
+function showBulkFolderModal(title, names) {
+    const modal = document.getElementById('bulkFolderModal');
+    document.getElementById('bulkFolderModalTitle').textContent = title;
+
+    let bodyHtml = '';
+    if (names.length > 0) {
+        bodyHtml = '<div style="margin-top: 8px;">';
+        names.forEach((name, i) => {
+            bodyHtml += `<div style="padding: 6px 12px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--accent-cyan); font-weight: 700;">${i + 1}</span>
+                <span>📁 ${name}</span>
+            </div>`;
+        });
+        bodyHtml += '</div>';
+    }
+
+    document.getElementById('bulkFolderModalBody').innerHTML = bodyHtml;
+    modal.style.display = 'flex';
+}
+
+function closeBulkFolderModal() {
+    document.getElementById('bulkFolderModal').style.display = 'none';
+}

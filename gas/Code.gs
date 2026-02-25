@@ -181,6 +181,9 @@ function doPost(e) {
       case 'createFolder':
         result = createStudentFolder(data);
         break;
+      case 'bulkCreateFolders':
+        result = bulkCreateFolders();
+        break;
       default:
         result = { error: 'Unknown action' };
     }
@@ -579,6 +582,52 @@ function createStudentFolder(data) {
     }
 
     return { success: true, folderUrl: folderUrl };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// --- 全生徒のDriveフォルダ一括作成 ---
+function bulkCreateFolders() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('生徒');
+    const allData = sheet.getDataRange().getValues();
+    const headers = allData[0];
+    const idCol = headers.indexOf('id');
+    const nameCol = headers.indexOf('name');
+    const driveFolderCol = headers.indexOf('driveFolder');
+
+    if (idCol === -1 || nameCol === -1 || driveFolderCol === -1) {
+      return { success: false, error: '必要なカラムが見つかりません' };
+    }
+
+    const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+    const created = [];
+
+    for (let i = 1; i < allData.length; i++) {
+      const id = allData[i][idCol];
+      const name = allData[i][nameCol];
+      const existingFolder = allData[i][driveFolderCol];
+
+      if (!id || !name) continue;
+      if (existingFolder && String(existingFolder).trim() !== '') continue;
+
+      // フォルダ作成
+      const existingFolders = parentFolder.getFoldersByName(name);
+      let folder;
+      if (existingFolders.hasNext()) {
+        folder = existingFolders.next();
+      } else {
+        folder = parentFolder.createFolder(name);
+      }
+
+      const folderUrl = 'https://drive.google.com/drive/folders/' + folder.getId();
+      sheet.getRange(i + 1, driveFolderCol + 1).setValue(folderUrl);
+      created.push(name);
+    }
+
+    return { success: true, created: created, count: created.length };
   } catch (error) {
     return { success: false, error: error.message };
   }

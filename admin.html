@@ -314,7 +314,40 @@
             </div>
         </div>
 
-        <!-- Student List -->
+        <!-- Bulk Drive Folder Creation -->
+        <div class="admin-section">
+            <div class="section-header">
+                <div class="section-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">📁</div>
+                <h2 class="section-title">Driveフォルダ一括作成</h2>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <button class="btn btn-primary btn-sm" onclick="bulkCreateFolders()" id="bulkFolderBtn">📁
+                    フォルダがない生徒に一括作成</button>
+                <span id="bulkFolderStatus" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+                ※ Driveフォルダが未設定の全生徒に対して、Googleドライブ上にフォルダを一括作成します。<br>
+                ※ 作成後、各生徒のDriveフォルダURLが自動的に登録されます。
+            </div>
+        </div>
+
+        <!-- Bulk Folder Result Modal -->
+        <div id="bulkFolderModal"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999; align-items:center; justify-content:center;">
+            <div
+                style="background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 28px; max-width: 480px; width: 90%; max-height: 70vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <span style="font-size: 1.5rem;">📁</span>
+                    <h3 id="bulkFolderModalTitle"
+                        style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">フォルダ作成結果</h3>
+                </div>
+                <div id="bulkFolderModalBody"
+                    style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;"></div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button class="btn btn-primary btn-sm" onclick="closeBulkFolderModal()">閉じる</button>
+                </div>
+            </div>
+        </div>
         <div class="admin-section">
             <div class="section-header">
                 <div class="section-icon" style="background: rgba(108, 99, 255, 0.15); color: var(--accent-purple);">👥
