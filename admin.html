@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ECCベストワン藍住 — 管理画面">
+    <title>ECCベストワン藍住 — 管理画面</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Admin-specific styles */
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .admin-section {
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            transition: border-color var(--transition-fast);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 500;
+            z-index: 200;
+            animation: fadeInUp 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .toast-success {
+            background: #059669;
+        }
+
+        .toast-error {
+            background: #ef4444;
+        }
+
+        .student-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .student-list-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-glass-hover);
+        }
+
+        .student-list-item.active {
+            border-color: var(--accent-purple);
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .student-list-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .student-list-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .student-list-grade {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: var(--font-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .tab:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .data-table-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+        }
+
+        .data-table-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .data-table-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .data-table-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="header-logo">
+                <div class="header-logo-icon">⚙</div>
+                <div>
+                    <div class="header-title">管理画面</div>
+                    <div class="header-subtitle">Student Portfolio Admin</div>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="header-back-btn">← 一覧に戻る</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Status -->
+        <div id="apiStatus"
+            style="padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 24px; font-size: 0.85rem;"></div>
+
+        <!-- Excel Import/Export -->
+        <div class="admin-section">
+            <div class="section-header">
+                <div class="section-icon" style="background: rgba(5, 150, 105, 0.15); color: #059669;">📊</div>
+                <h2 class="section-title">一括操作（Excel）</h2>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="exportToExcel()">📥 Excelエクスポート</button>
+                <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                    📤 Excelインポート
+                    <input type="file" id="excelImportInput" accept=".xlsx,.xls" onchange="importFromExcel(event)"
+                        style="display: none;">
+                </label>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+                ※ エクスポートで現在のデータをExcelファイルとしてダウンロードできます。<br>
+                ※ インポートでExcelファイルから生徒データを一括登録・更新できます。<br>
+                ※ IDが既存の生徒と一致する場合は更新、新規IDの場合は追加されます。
+            </div>
+        </div>
+
+        <!-- Student List -->
+        <div class="admin-section">
+            <div class="section-header">
+                <div class="section-icon" style="background: rgba(108, 99, 255, 0.15); color: var(--accent-purple);">👥
+                </div>
+                <h2 class="section-title">塾生一覧</h2>
+                <button class="btn btn-primary btn-sm" onclick="showAddStudentForm()" style="margin-left: auto;">＋
+                    新規追加</button>
+            </div>
+            <div id="studentList">
+                <div class="loading-spinner" style="margin: 20px auto;"></div>
+            </div>
+        </div>
+
+        <!-- Edit Area -->
+        <div id="editArea" style="display: none;">
+            <!-- Tabs -->
+            <div class="tabs" id="editTabs"></div>
+
+            <!-- Tab: Profile -->
+            <div class="tab-content" id="tab-profile">
+                <div class="section-header">
+                    <div class="section-icon"
+                        style="background: rgba(108, 99, 255, 0.15); color: var(--accent-purple);">👤</div>
+                    <h2 class="section-title" id="editTitle">生徒情報</h2>
+                </div>
+                <form id="studentForm" onsubmit="saveStudent(event)">
+                    <input type="hidden" id="formMode" value="add">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">氏名 *</label>
+                            <input type="text" class="form-input" id="fName" required placeholder="山田 太郎">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">フリガナ</label>
+                            <input type="text" class="form-input" id="fNameKana" placeholder="やまだ たろう">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">学年 *</label>
+                            <input type="text" class="form-input" id="fGrade" required placeholder="中学3年">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">学校</label>
+                            <input type="text" class="form-input" id="fSchool" placeholder="相生中学校">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">入塾日</label>
+                            <input type="date" class="form-input" id="fEnrollDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">アイコンカラー</label>
+                            <input type="color" class="form-input" id="fIconColor" value="#6C63FF"
+                                style="height: 40px; padding: 4px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">受講科目（カンマ区切り）</label>
+                        <input type="text" class="form-input" id="fSubjects" placeholder="数学,英語,国語">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Google Driveフォルダ URL</label>
+                        <input type="url" class="form-input" id="fDriveFolder"
+                            placeholder="https://drive.google.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">メモ</label>
+                        <textarea class="form-textarea" id="fMemo" placeholder="特記事項..."></textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">💾 保存</button>
+                        <button type="button" class="btn btn-danger" id="deleteStudentBtn"
+                            onclick="deleteCurrentStudent()" style="display:none;">🗑 削除</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab: Documents -->
+            <div class="tab-content" id="tab-documents">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue);">
+                        📁</div>
+                    <h2 class="section-title">書類管理</h2>
+                </div>
+                <div id="docsList"></div>
+                <h3 style="font-size: 0.9rem; margin: 20px 0 12px; color: var(--text-secondary);">書類を追加</h3>
+                <form id="docForm" onsubmit="addDocumentEntry(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">カテゴリ *</label>
+                            <select class="form-select" id="dCategory" required>
+                                <option value="meetings">📝 面談内容</option>
+                                <option value="grades">📊 成績</option>
+                                <option value="homework">📋 宿題</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">日付</label>
+                            <input type="date" class="form-input" id="dDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">タイトル *</label>
+                        <input type="text" class="form-input" id="dTitle" required placeholder="1学期中間テスト結果">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Google Drive共有リンク *</label>
+                        <input type="url" class="form-input" id="dUrl" required
+                            placeholder="https://drive.google.com/...">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">＋ 追加</button>
+                </form>
+            </div>
+
+            <!-- Tab: History -->
+            <div class="tab-content" id="tab-history">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(0, 212, 170, 0.15); color: var(--accent-cyan);">📈
+                    </div>
+                    <h2 class="section-title">学習歴管理</h2>
+                </div>
+                <div id="historyList"></div>
+                <h3 style="font-size: 0.9rem; margin: 20px 0 12px; color: var(--text-secondary);">学習歴を追加</h3>
+                <form id="historyForm" onsubmit="addHistoryEntry(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">日付 *</label>
+                            <input type="date" class="form-input" id="hDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">イベント *</label>
+                            <input type="text" class="form-input" id="hEvent" required placeholder="入塾（数学・英語）">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">＋ 追加</button>
+                </form>
+            </div>
+
+            <!-- Tab: Schooling -->
+            <div class="tab-content" id="tab-schooling">
+                <div class="section-header">
+                    <div class="section-icon"
+                        style="background: rgba(245, 158, 11, 0.15); color: var(--accent-orange);">🏫</div>
+                    <h2 class="section-title">スクーリング結果管理</h2>
+                </div>
+                <div id="schoolingList"></div>
+                <h3 style="font-size: 0.9rem; margin: 20px 0 12px; color: var(--text-secondary);">スクーリング結果を追加</h3>
+                <form id="schoolingForm" onsubmit="addSchoolingEntry(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">タイトル *</label>
+                            <input type="text" class="form-input" id="sTitle" required placeholder="Vテスト 第1回結果">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">日付</label>
+                            <input type="date" class="form-input" id="sDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">URL *</label>
+                        <input type="url" class="form-input" id="sUrl" required placeholder="https://...">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">＋ 追加</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>© 2026 ECCベストワン藍住 — 管理画面</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>
