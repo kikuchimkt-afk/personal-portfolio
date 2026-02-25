@@ -553,7 +553,8 @@ function renderDocuments(student) {
       <div id="docDropZone" style="border: 2px dashed var(--border-glass); border-radius: var(--radius-md); padding: 24px 16px; text-align: center; transition: all 0.2s ease; cursor: pointer; margin-bottom: 12px;">
         <div style="font-size: 2rem; margin-bottom: 8px; opacity: 0.5;">📂</div>
         <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">ここにファイルをドラッグ＆ドロップ</div>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">または下のボタンからファイルを選択</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">または下のボタンからファイルを選択</div>
+        <div style="display: inline-block; padding: 4px 14px; background: rgba(237, 137, 54, 0.15); color: #dd6b20; border: 1px solid rgba(237, 137, 54, 0.3); border-radius: 100px; font-size: 0.75rem; font-weight: 700;">⚠️ 先にカテゴリとタイトルを入力！</div>
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;">
         <div style="flex: 0 0 auto;">
