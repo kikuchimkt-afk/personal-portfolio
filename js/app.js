@@ -69,10 +69,13 @@ function renderFilterBar(students) {
 
   // 学年を低学年順にソート（小→中→高）
   const gradeOrder = (g) => {
-    const m = g.match(/^(小|中|高)(\d+)/);
+    // 全角数字を半角に変換
+    const normalized = g.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+    const m = normalized.match(/^(小学?|中学?|高校?)\D*(\d*)/);
     if (!m) return 999;
-    const prefix = { '小': 0, '中': 100, '高': 200 }[m[1]] || 300;
-    return prefix + parseInt(m[2]);
+    const prefixMap = { '小': 0, '小学': 0, '中': 100, '中学': 100, '高': 200, '高校': 200 };
+    const prefix = prefixMap[m[1]] ?? 300;
+    return prefix + (m[2] ? parseInt(m[2]) : 0);
   };
   grades.sort((a, b) => gradeOrder(a) - gradeOrder(b));
 

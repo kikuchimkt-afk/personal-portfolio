@@ -664,14 +664,26 @@ function uploadFileToDrive(data) {
         try {
           folder = DriveApp.getFolderById(folderId);
         } catch (e) {
-          // フォルダアクセス失敗時はルートに保存
-          folder = DriveApp.getRootFolder();
+          // フォルダアクセス失敗時は自動作成
+          const created = createStudentFolder({ studentId: studentId, name: student.name || studentId });
+          if (created.success) {
+            folder = DriveApp.getFolderById(extractDriveFolderId(created.folderUrl));
+          } else {
+            folder = DriveApp.getRootFolder();
+          }
         }
       } else {
         folder = DriveApp.getRootFolder();
       }
     } else {
-      folder = DriveApp.getRootFolder();
+      // フォルダ未設定 → 自動作成
+      const studentName = student ? student.name : studentId;
+      const created = createStudentFolder({ studentId: studentId, name: studentName });
+      if (created.success) {
+        folder = DriveApp.getFolderById(extractDriveFolderId(created.folderUrl));
+      } else {
+        folder = DriveApp.getRootFolder();
+      }
     }
 
     // ファイルをアップロード
