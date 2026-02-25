@@ -61,7 +61,7 @@ function clearCache() {
 
 // --- 接続エラー表示 ---
 function showConnectionError(message) {
-    const grid = document.getElementById('studentsGrid');
+    const grid = document.getElementById('studentsGrid') || document.getElementById('mStudentList');
     if (grid) {
         grid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">

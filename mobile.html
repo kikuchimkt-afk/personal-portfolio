@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="ECCベストワン藍住 — 生徒ポートフォリオ（モバイル版）">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ECCベストワン藍住</title>
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="m-header">
+        <div class="m-header-logo">
+            <div class="m-header-icon">E</div>
+            <div class="m-header-title">ECCベストワン藍住</div>
+        </div>
+        <nav class="m-header-nav">
+            <a href="index.html" class="m-header-btn">💻 PC版</a>
+            <a href="admin.html" class="m-header-btn">⚙</a>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="m-hero">
+        <h1 class="m-hero-title">ECCベストワン藍住</h1>
+        <p class="m-hero-desc">生徒ポートフォリオ</p>
+        <div class="m-stats" id="mStats"></div>
+    </section>
+
+    <!-- Filter -->
+    <div class="m-filters" id="mFilters"></div>
+
+    <!-- Student List -->
+    <div class="m-student-list" id="mStudentList">
+        <div class="m-loading">
+            <div class="m-spinner"></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">読み込み中...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="m-footer">
+        <p>© 2026 ECCベストワン藍住</p>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/mobile-app.js"></script>
+</body>
+
+</html>
