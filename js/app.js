@@ -30,12 +30,17 @@ function hideLoading() { }
 // --- Hero Stats ---
 function renderHeroStats(students) {
   const container = document.getElementById('heroStats');
-  const gradeSet = new Set(students.map(s => s.grade));
-  const subjectSet = new Set(students.flatMap(s => s.subjects || []));
+  const isGraduated = s => s.grade && s.grade.includes('卒業');
+  const isJunior = s => s.grade && s.grade.includes('ジュニア');
+  const activeStudents = students.filter(s => !isGraduated(s) && !isJunior(s));
+  const graduatedStudents = students.filter(isGraduated);
+  const juniorStudents = students.filter(isJunior);
+  const gradeSet = new Set(activeStudents.map(s => s.grade).filter(Boolean));
+  const subjectSet = new Set(activeStudents.flatMap(s => s.subjects || []));
 
   container.innerHTML = `
     <div class="hero-stat">
-      <div class="hero-stat-value">${students.length}</div>
+      <div class="hero-stat-value">${activeStudents.length}</div>
       <div class="hero-stat-label">塾生数</div>
     </div>
     <div class="hero-stat">
@@ -46,18 +51,37 @@ function renderHeroStats(students) {
       <div class="hero-stat-value">${subjectSet.size}</div>
       <div class="hero-stat-label">科目数</div>
     </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">${juniorStudents.length}</div>
+      <div class="hero-stat-label">ジュニア</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">${graduatedStudents.length}</div>
+      <div class="hero-stat-label">卒業生</div>
+    </div>
   `;
 }
 
 // --- Filter Bar ---
 function renderFilterBar(students) {
   const container = document.getElementById('filterBar');
-  const grades = [...new Set(students.map(s => s.grade))];
+  const grades = [...new Set(students.map(s => s.grade).filter(g => g && !g.includes('卒業') && !g.includes('ジュニア')))];
+
+  // 学年を低学年順にソート（小→中→高）
+  const gradeOrder = (g) => {
+    const m = g.match(/^(小|中|高)(\d+)/);
+    if (!m) return 999;
+    const prefix = { '小': 0, '中': 100, '高': 200 }[m[1]] || 300;
+    return prefix + parseInt(m[2]);
+  };
+  grades.sort((a, b) => gradeOrder(a) - gradeOrder(b));
 
   let html = `<button class="filter-btn active" data-filter="all">すべて</button>`;
   grades.forEach(grade => {
     html += `<button class="filter-btn" data-filter="${grade}">${grade}</button>`;
   });
+  html += `<button class="filter-btn" data-filter="ジュニア">ジュニア</button>`;
+  html += `<button class="filter-btn" data-filter="卒業生">卒業生</button>`;
 
   container.innerHTML = html;
 
@@ -66,9 +90,16 @@ function renderFilterBar(students) {
       container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const filter = btn.dataset.filter;
-      const filtered = filter === 'all'
-        ? window._students
-        : window._students.filter(s => s.grade === filter);
+      let filtered;
+      if (filter === 'all') {
+        filtered = window._students;
+      } else if (filter === '卒業生') {
+        filtered = window._students.filter(s => s.grade && s.grade.includes('卒業'));
+      } else if (filter === 'ジュニア') {
+        filtered = window._students.filter(s => s.grade && s.grade.includes('ジュニア'));
+      } else {
+        filtered = window._students.filter(s => s.grade === filter);
+      }
       renderStudentCards(filtered);
     });
   });
