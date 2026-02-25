@@ -572,13 +572,21 @@ function renderDocuments(student) {
           📁 ファイルを選択
           <input type="file" id="docFileInput" onchange="uploadDocFile('${student.id}')" style="display: none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.txt">
         </label>
+        <label style="padding: 8px 16px; background: linear-gradient(135deg, #38b2ac, #319795); color: white; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">
+          📷 カメラ
+          <input type="file" id="docCameraInput" onchange="uploadDocFile('${student.id}')" style="display: none;" accept="image/*" capture="environment">
+        </label>
+        <button type="button" onclick="pasteFromClipboard('${student.id}')" style="padding: 8px 16px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">
+          📋 ペースト
+        </button>
       </div>
       <div id="uploadProgress" style="display: none; margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
         <div class="loading-spinner" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div>
         アップロード中...
       </div>
       <div style="margin-top: 6px; font-size: 0.7rem; color: var(--text-muted);">
-        ※ PDF, Word, Excel, 画像等に対応（最大50MB）。生徒のDriveフォルダにアップロードされます。
+        ※ PDF, Word, Excel, 画像等に対応（最大50MB）。生徒のDriveフォルダにアップロードされます。<br>
+        💡 ドロップゾーンでCtrl+Vでスクリーンショットも貼り付けできます。
       </div>
     </div>
   `;
@@ -586,6 +594,14 @@ function renderDocuments(student) {
   // ドロップゾーンのイベント設定
   requestAnimationFrame(() => {
     setupDropZone('docDropZone', 'docFileInput', (file) => uploadDocFile(student.id, file));
+    // ペーストイベント設定（ドロップゾーンとページ全体）
+    const dropZone = document.getElementById('docDropZone');
+    if (dropZone) {
+      dropZone.setAttribute('tabindex', '0');
+      dropZone.addEventListener('paste', (e) => handlePasteEvent(e, student.id));
+      dropZone.addEventListener('focus', () => { dropZone.style.borderColor = 'var(--accent-purple)'; });
+      dropZone.addEventListener('blur', () => { dropZone.style.borderColor = 'var(--border-glass)'; });
+    }
   });
 }
 
@@ -737,7 +753,8 @@ async function addSchoolingByUrl(studentId) {
 // --- 書類アップロード ---
 async function uploadDocFile(studentId, droppedFile) {
   const fileInput = document.getElementById('docFileInput');
-  const file = droppedFile || fileInput.files[0];
+  const cameraInput = document.getElementById('docCameraInput');
+  const file = droppedFile || fileInput.files[0] || (cameraInput && cameraInput.files[0]);
   if (!file) return;
 
   // サイズチェック（10MB）
@@ -783,6 +800,46 @@ async function uploadDocFile(studentId, droppedFile) {
 
   progress.style.display = 'none';
   fileInput.value = '';
+  if (cameraInput) cameraInput.value = '';
+}
+
+// --- クリップボードペースト ---
+async function pasteFromClipboard(studentId) {
+  try {
+    const items = await navigator.clipboard.read();
+    let imageBlob = null;
+    for (const item of items) {
+      const imageType = item.types.find(t => t.startsWith('image/'));
+      if (imageType) {
+        imageBlob = await item.getType(imageType);
+        break;
+      }
+    }
+    if (!imageBlob) {
+      showStudentToast('クリップボードに画像がありません', 'error');
+      return;
+    }
+    const file = new File([imageBlob], 'paste_' + Date.now() + '.png', { type: imageBlob.type });
+    uploadDocFile(studentId, file);
+  } catch (err) {
+    showStudentToast('ペーストエラー: ' + err.message, 'error');
+  }
+}
+
+function handlePasteEvent(e, studentId) {
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.startsWith('image/')) {
+      e.preventDefault();
+      const blob = items[i].getAsFile();
+      if (blob) {
+        const file = new File([blob], 'paste_' + Date.now() + '.png', { type: blob.type });
+        uploadDocFile(studentId, file);
+      }
+      return;
+    }
+  }
 }
 
 // --- スクーリング結果アップロード ---
