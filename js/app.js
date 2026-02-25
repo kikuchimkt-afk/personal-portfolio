@@ -1,0 +1,112 @@
+// =============================================
+// 塾生ポートフォリオ — LP (Landing Page) Logic
+// =============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  initLP();
+});
+
+async function initLP() {
+  showLoading();
+  const students = await fetchAllStudents();
+  window._students = students;
+  hideLoading();
+  renderHeroStats(students);
+  renderFilterBar(students);
+  renderStudentCards(students);
+}
+
+// --- Loading ---
+function showLoading() {
+  document.getElementById('studentsGrid').innerHTML = `
+    <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+      <div class="loading-spinner"></div>
+      <div style="color: var(--text-muted); margin-top: 16px; font-size: 0.9rem;">データを読み込んでいます...</div>
+    </div>
+  `;
+}
+function hideLoading() { }
+
+// --- Hero Stats ---
+function renderHeroStats(students) {
+  const container = document.getElementById('heroStats');
+  const gradeSet = new Set(students.map(s => s.grade));
+  const subjectSet = new Set(students.flatMap(s => s.subjects || []));
+
+  container.innerHTML = `
+    <div class="hero-stat">
+      <div class="hero-stat-value">${students.length}</div>
+      <div class="hero-stat-label">塾生数</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">${gradeSet.size}</div>
+      <div class="hero-stat-label">学年</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">${subjectSet.size}</div>
+      <div class="hero-stat-label">科目数</div>
+    </div>
+  `;
+}
+
+// --- Filter Bar ---
+function renderFilterBar(students) {
+  const container = document.getElementById('filterBar');
+  const grades = [...new Set(students.map(s => s.grade))];
+
+  let html = `<button class="filter-btn active" data-filter="all">すべて</button>`;
+  grades.forEach(grade => {
+    html += `<button class="filter-btn" data-filter="${grade}">${grade}</button>`;
+  });
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      const filtered = filter === 'all'
+        ? window._students
+        : window._students.filter(s => s.grade === filter);
+      renderStudentCards(filtered);
+    });
+  });
+}
+
+// --- Student Cards ---
+function renderStudentCards(students) {
+  const container = document.getElementById('studentsGrid');
+
+  if (!students || students.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-text">該当する塾生がいません</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = students.map((student, i) => {
+    const avatarSrc = student.avatarUrl || '';
+    const iconHtml = avatarSrc
+      ? `<div class="student-icon" style="background: transparent; overflow: hidden;"><img src="${avatarSrc}" alt="${student.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>`
+      : `<div class="student-icon" style="background: ${student.iconColor || '#6C63FF'}">${student.name.charAt(0)}</div>`;
+
+    const gradeInfo = student.school
+      ? `${student.grade || ''} ／ ${student.school}`
+      : (student.grade || '');
+
+    return `
+    <a href="student.html?id=${student.id}" class="student-card animate-in" style="animation-delay: ${i * 0.08}s">
+      ${iconHtml}
+      <div class="student-name">${student.name}</div>
+      <div class="student-grade">${gradeInfo}</div>
+      <div class="student-subjects">
+        ${(student.subjects || []).map(s => `<span class="subject-tag" data-subject="${s}">${s}</span>`).join('')}
+      </div>
+    </a>
+  `;
+  }).join('');
+}
