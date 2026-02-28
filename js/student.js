@@ -500,9 +500,9 @@ function renderDocuments(student) {
   }
 
   const categories = [
-    { key: 'meetings', title: '📝 面談内容', items: docs.meetings || [] },
-    { key: 'grades', title: '📊 成績', items: docs.grades || [] },
-    { key: 'homework', title: '📋 宿題', items: docs.homework || [] }
+    { key: 'meetings', title: '📝 面談内容', items: (docs.meetings || []).slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)) },
+    { key: 'grades', title: '📊 成績', items: (docs.grades || []).slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)) },
+    { key: 'homework', title: '📋 宿題', items: (docs.homework || []).slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)) }
   ];
 
   const grids = categories.map(cat => {
@@ -527,7 +527,7 @@ function renderDocuments(student) {
 
     const emptyOrList = cat.items.length === 0
       ? `<div class="empty-state" style="padding: 16px 0;"><div class="empty-state-text" style="font-size: 0.8rem;">登録なし</div></div>`
-      : `<div class="doc-list">${listItems}</div>`;
+      : `<div class="doc-list" style="max-height: 250px; overflow-y: auto;">${listItems}</div>`;
 
     return `
       <div class="doc-category">
